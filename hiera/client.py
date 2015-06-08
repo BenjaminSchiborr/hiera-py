@@ -8,6 +8,7 @@ from __future__ import print_function, unicode_literals
 import logging
 import os.path
 import subprocess
+import yaml
 
 import hiera.exc
 
@@ -74,6 +75,7 @@ class HieraClient(object):
         :rtype: list that is hiera command
         """
         cmd = [self.hiera_binary,
+               '--hash',
                '--config', self.config_filename,
                key_name]
         cmd.extend(map(lambda *env_var: '='.join(*env_var),
@@ -109,10 +111,13 @@ class HieraClient(object):
                     key_name, ex.returncode, ex.message, ex.output))
         else:
             value = output.strip()
-            if not value:
-                return None
-            else:
-                return value
+            value = value.replace(",\n", ",")
+            value = value.replace("=>", ":")
+
+        if not value:
+            return None
+        else:
+            return yaml.safe_load(value)
 
     def _validate(self):
         """Validate the instance attributes. Raises HieraError if issues are
