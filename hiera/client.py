@@ -75,7 +75,6 @@ class HieraClient(object):
         :rtype: list that is hiera command
         """
         cmd = [self.hiera_binary,
-               '--hash',
                '--config', self.config_filename,
                key_name]
         cmd.extend(map(lambda *env_var: '='.join(*env_var),
